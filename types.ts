@@ -1,3 +1,6 @@
+
+export type Language = 'en' | 'es' | 'fr' | 'ar' | 'sv' | 'pt';
+
 export interface SubTask {
   id: string;
   title: string;
@@ -9,6 +12,7 @@ export interface Task {
   title: string;
   completed: boolean;
   createdAt: number;
+  dueDate?: number;
   subtasks: SubTask[];
   isExpanded: boolean; // For showing subtasks
   aiLoading: boolean; // If AI is currently generating subtasks
