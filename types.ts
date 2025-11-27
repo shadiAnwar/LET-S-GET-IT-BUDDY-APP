@@ -1,5 +1,6 @@
 
 export type Language = 'en' | 'es' | 'fr' | 'ar' | 'sv' | 'pt';
+export type Theme = 'sunset' | 'ocean' | 'forest' | 'dream';
 
 export interface SubTask {
   id: string;

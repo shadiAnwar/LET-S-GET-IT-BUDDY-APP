@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Task, SubTask, FilterType, Language } from './types';
+import { Task, SubTask, FilterType, Language, Theme } from './types';
 import { TaskItem } from './components/TaskItem';
 import { AddTask } from './components/AddTask';
-import { RocketIcon, ChevronDownIcon } from './components/Icons';
+import { RocketIcon, ChevronDownIcon, PaletteIcon } from './components/Icons';
 import { Toast } from './components/Toast';
 import { Confetti } from './components/Confetti';
+import { ThemeSelector } from './components/ThemeSelector';
 import { generateTaskBreakdown } from './services/geminiService';
 import { translations } from './translations';
 
@@ -22,7 +23,9 @@ const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<FilterType>(FilterType.ALL);
   const [language, setLanguage] = useState<Language>('en');
+  const [theme, setTheme] = useState<Theme>('sunset');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCelebrating, setIsCelebrating] = useState(false);
   
@@ -122,10 +125,11 @@ const App: React.FC = () => {
     setTimeout(() => setIsCelebrating(false), 3000);
   };
 
-  // Load from local storage (tasks and language)
+  // Load from local storage (tasks, language, theme)
   useEffect(() => {
     const savedTasks = localStorage.getItem('lets-get-it-buddy-tasks');
     const savedLang = localStorage.getItem('lets-get-it-buddy-lang') as Language;
+    const savedTheme = localStorage.getItem('lets-get-it-buddy-theme') as Theme;
     
     if (savedTasks) {
       try {
@@ -146,6 +150,10 @@ const App: React.FC = () => {
         setLanguage(savedLang);
     }
 
+    if (savedTheme && ['sunset', 'ocean', 'forest', 'dream'].includes(savedTheme)) {
+        setTheme(savedTheme);
+    }
+
     setIsLoaded(true);
   }, []);
 
@@ -154,8 +162,19 @@ const App: React.FC = () => {
     if (isLoaded) {
       localStorage.setItem('lets-get-it-buddy-tasks', JSON.stringify(tasks));
       localStorage.setItem('lets-get-it-buddy-lang', language);
+      localStorage.setItem('lets-get-it-buddy-theme', theme);
     }
-  }, [tasks, language, isLoaded]);
+  }, [tasks, language, theme, isLoaded]);
+
+  // Apply Theme to Body
+  useEffect(() => {
+    // Remove all theme classes first
+    document.body.classList.remove('theme-sunset', 'theme-ocean', 'theme-forest', 'theme-dream');
+    // Add current theme class
+    if (theme !== 'sunset') {
+      document.body.classList.add(`theme-${theme}`);
+    }
+  }, [theme]);
 
   // Check for Overdue Tasks to Trigger Boo
   useEffect(() => {
@@ -318,29 +337,48 @@ const App: React.FC = () => {
   const currentLang = LANGUAGES.find(l => l.code === language) || LANGUAGES[0];
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-dark-900 text-slate-100 font-sans selection:bg-brand-500 selection:text-white pb-20 overflow-x-hidden">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-bg-900 text-text-100 font-sans selection:bg-primary-500 selection:text-white pb-20 overflow-x-hidden transition-colors duration-500">
       
       {/* Celebration Effects */}
       {isCelebrating && <Confetti />}
 
       {/* Header Background Gradient */}
-      <div className="fixed top-0 left-0 right-0 h-64 bg-gradient-to-b from-indigo-900/20 to-transparent pointer-events-none z-0"></div>
+      <div className="fixed top-0 left-0 right-0 h-64 bg-gradient-to-b from-primary-900/20 to-transparent pointer-events-none z-0"></div>
 
-      {/* Language Switcher (Top Right) */}
-      <div className="fixed top-4 end-4 z-50">
+      {/* Controls: Language and Theme Switcher (Top Right) */}
+      <div className="fixed top-4 end-4 z-50 flex items-center gap-2">
+          
+          {/* Theme Switcher */}
+          <div className="relative">
+             <button
+                onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                className="flex items-center justify-center bg-bg-800/80 backdrop-blur-md border border-bg-700 w-10 h-10 rounded-full cursor-pointer hover:border-primary-500 transition-all shadow-lg hover:shadow-primary-500/20 text-text-300 hover:text-primary-500"
+                aria-label="Change Theme"
+             >
+                <PaletteIcon className="w-5 h-5" />
+             </button>
+             <ThemeSelector 
+                currentTheme={theme} 
+                onThemeChange={setTheme} 
+                isOpen={isThemeMenuOpen} 
+                onClose={() => setIsThemeMenuOpen(false)} 
+             />
+          </div>
+
+          {/* Language Switcher */}
           <div className="relative">
               <button 
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                className="flex items-center gap-2 bg-dark-800/80 backdrop-blur-md border border-dark-700 px-3 py-2 rounded-full cursor-pointer hover:border-brand-500 transition-all shadow-lg hover:shadow-brand-500/20"
+                className="flex items-center gap-2 bg-bg-800/80 backdrop-blur-md border border-bg-700 px-3 py-2 rounded-full cursor-pointer hover:border-primary-500 transition-all shadow-lg hover:shadow-primary-500/20"
               >
                   <span className="text-lg leading-none">{currentLang.flag}</span>
-                  <span className="text-sm font-semibold text-slate-300 hidden md:inline">{currentLang.label}</span>
-                  <ChevronDownIcon className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isLangMenuOpen ? 'rotate-180' : ''}`} />
+                  <span className="text-sm font-semibold text-text-300 hidden md:inline">{currentLang.label}</span>
+                  <ChevronDownIcon className={`w-4 h-4 text-text-500 transition-transform duration-200 ${isLangMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Dropdown Menu */}
               {isLangMenuOpen && (
-                <div className="absolute top-full end-0 mt-2 w-48 bg-dark-800 border border-dark-700 rounded-xl shadow-xl overflow-hidden animate-fade-in z-50">
+                <div className="absolute top-full end-0 mt-2 w-48 bg-bg-800 border border-bg-700 rounded-xl shadow-xl overflow-hidden animate-fade-in z-50">
                   {LANGUAGES.map((lang) => (
                     <button
                       key={lang.code}
@@ -348,8 +386,8 @@ const App: React.FC = () => {
                         setLanguage(lang.code as Language);
                         setIsLangMenuOpen(false);
                       }}
-                      className={`w-full text-start px-4 py-3 flex items-center gap-3 hover:bg-dark-700 transition-colors ${
-                        language === lang.code ? 'bg-brand-500/10 text-brand-400' : 'text-slate-300'
+                      className={`w-full text-start px-4 py-3 flex items-center gap-3 hover:bg-bg-700 transition-colors ${
+                        language === lang.code ? 'bg-primary-500/10 text-primary-400' : 'text-text-300'
                       }`}
                     >
                       <span className="text-xl">{lang.flag}</span>
@@ -368,13 +406,13 @@ const App: React.FC = () => {
             <div className="flex items-center gap-4">
               {/* Animated Logo Container */}
               <div className="relative group cursor-default">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-2xl blur opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-                  <div className="relative bg-gradient-to-tr from-fuchsia-600 via-orange-500 to-yellow-400 p-3.5 rounded-2xl shadow-lg shadow-orange-500/20 shrink-0 transform transition-transform group-hover:scale-105 group-hover:rotate-6 duration-300">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-2xl blur opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+                  <div className="relative bg-gradient-to-tr from-primary-600 via-secondary-500 to-primary-400 p-3.5 rounded-2xl shadow-lg shadow-secondary-500/20 shrink-0 transform transition-transform group-hover:scale-105 group-hover:rotate-6 duration-300">
                       <RocketIcon className="text-white w-9 h-9 drop-shadow-md" />
                   </div>
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400 drop-shadow-sm">
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-text-300 to-text-500 drop-shadow-sm">
                   {t.title}
               </h1>
             </div>
@@ -382,22 +420,22 @@ const App: React.FC = () => {
         
         {/* Buddy Status Message */}
         <p className={`mt-2 text-sm font-medium transition-colors duration-500 ps-1 ${
-          activeCount > 5 ? 'text-red-400' : 'text-slate-400'
+          activeCount > 5 ? 'text-red-400' : 'text-text-500'
         }`}>
           {getBuddyMessage(activeCount)}
         </p>
 
         {/* Status Bar & Filters */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-8 mb-6 gap-4">
-            <div className="font-bold text-slate-400 ps-1">
+            <div className="font-bold text-text-500 ps-1">
                 {activeCount === 0 && tasks.length > 0 
-                    ? <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-emerald-400">{t.allDone}</span>
+                    ? <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">{t.allDone}</span>
                     : <span>{activeCount} {t.remaining}</span>
                 }
             </div>
             
             {/* Alive Filter Pills */}
-            <div className="flex bg-dark-800/80 p-1.5 rounded-xl border border-dark-700/50 backdrop-blur-sm">
+            <div className="flex bg-bg-800/80 p-1.5 rounded-xl border border-bg-700/50 backdrop-blur-sm">
                 {(Object.keys(FilterType) as Array<keyof typeof FilterType>).map((key) => {
                     const type = FilterType[key];
                     const isActive = filter === type;
@@ -407,12 +445,12 @@ const App: React.FC = () => {
                             onClick={() => setFilter(type)}
                             className={`relative px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
                                 isActive 
-                                    ? 'text-white shadow-lg shadow-indigo-500/25' 
-                                    : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                                    ? 'text-white shadow-lg shadow-primary-500/25' 
+                                    : 'text-text-500 hover:text-text-300 hover:bg-white/5'
                             }`}
                         >
                             {isActive && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-lg -z-10"></div>
+                                <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-lg -z-10"></div>
                             )}
                             {t.filters[type]}
                         </button>
@@ -432,8 +470,8 @@ const App: React.FC = () => {
         <div className="space-y-3">
             {filteredTasks.length === 0 ? (
                 <div className="text-center py-20 opacity-50">
-                    <p className="text-xl font-bold text-slate-600">{t.empty.default}</p>
-                    <p className="text-slate-700 mt-2">
+                    <p className="text-xl font-bold text-text-500">{t.empty.default}</p>
+                    <p className="text-text-500 mt-2">
                       {filter === FilterType.COMPLETED 
                         ? t.empty.completed
                         : t.empty.active}

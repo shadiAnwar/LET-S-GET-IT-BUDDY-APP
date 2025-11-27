@@ -62,12 +62,12 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         onDragEnter={(e) => onDragEnter(e, index)}
         onDragEnd={onDragEnd}
         onDragOver={(e) => e.preventDefault()}
-        className={`group relative bg-dark-800 border ${
+        className={`group relative bg-bg-800 border ${
             isCompleted 
-                ? 'border-dark-700 bg-dark-800/50' 
+                ? 'border-bg-700 bg-bg-800/50' 
                 : isOverdue
                     ? 'border-red-500/30 hover:border-red-500/50 bg-red-900/5'
-                    : 'border-dark-700 hover:border-fuchsia-500/30 hover:shadow-lg hover:shadow-fuchsia-900/20'
+                    : 'border-bg-700 hover:border-primary-500/30 hover:shadow-lg hover:shadow-primary-900/20'
         } rounded-2xl p-4 transition-all duration-300 mb-0 animate-slide-up ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       
@@ -75,7 +75,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       <div className="flex items-start gap-4">
         {/* Drag Handle */}
         {isDraggable && (
-          <div className="mt-1 text-slate-700 group-hover:text-slate-500 transition-colors">
+          <div className="mt-1 text-text-500 group-hover:text-text-300 transition-colors">
             <GripVerticalIcon className="w-5 h-5" />
           </div>
         )}
@@ -85,8 +85,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           onClick={() => onToggle(task.id)}
           className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 shadow-sm ${
             isCompleted 
-              ? 'bg-gradient-to-br from-fuchsia-500 to-orange-500 scale-105' 
-              : 'border-2 border-slate-600 hover:border-fuchsia-400 hover:bg-fuchsia-500/10'
+              ? 'bg-gradient-to-br from-primary-500 to-secondary-500 scale-105' 
+              : 'border-2 border-text-500 hover:border-primary-400 hover:bg-primary-500/10'
           }`}
           aria-label="Toggle task completion"
         >
@@ -96,7 +96,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         {/* Task Content */}
         <div className="flex-1 min-w-0 pt-0.5">
           <p className={`text-lg font-medium transition-all duration-300 break-words leading-tight ${
-            isCompleted ? 'text-slate-600 line-through decoration-slate-600/50' : 'text-slate-100'
+            isCompleted ? 'text-text-500 line-through decoration-text-500/50' : 'text-text-100'
           }`}>
             {task.title}
           </p>
@@ -107,12 +107,12 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             {task.dueDate && (
                 <div className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg border ${
                     isCompleted 
-                        ? 'text-slate-600 bg-slate-800 border-slate-700'
+                        ? 'text-text-500 bg-bg-700 border-bg-700'
                         : isOverdue 
                             ? 'text-red-300 bg-red-900/30 border-red-500/20' 
-                            : 'text-orange-200 bg-gradient-to-r from-fuchsia-500/10 to-orange-500/10 border-fuchsia-500/20'
+                            : 'text-secondary-400 bg-gradient-to-r from-primary-500/10 to-secondary-500/10 border-primary-500/20'
                 }`}>
-                    <ClockIcon className={`w-3 h-3 ${!isCompleted && !isOverdue ? 'text-orange-400' : ''}`} />
+                    <ClockIcon className={`w-3 h-3 ${!isCompleted && !isOverdue ? 'text-secondary-400' : ''}`} />
                     <span>{isOverdue && !isCompleted ? translations.overdue : ''}{formatDueDate(task.dueDate)}</span>
                 </div>
             )}
@@ -122,9 +122,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
               <button 
                 onClick={() => onAddSubtasks(task.id)}
                 disabled={task.aiLoading}
-                className="group/ai flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-md text-purple-300 bg-purple-900/20 border border-purple-500/20 hover:bg-purple-900/40 hover:border-purple-500/40 transition-all disabled:opacity-50"
+                className="group/ai flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-md text-primary-400 bg-primary-900/20 border border-primary-500/20 hover:bg-primary-900/40 hover:border-primary-500/40 transition-all disabled:opacity-50"
               >
-                 <SparklesIcon className={`w-3 h-3 ${task.aiLoading ? 'animate-spin' : 'group-hover/ai:text-purple-200'}`} />
+                 <SparklesIcon className={`w-3 h-3 ${task.aiLoading ? 'animate-spin' : 'group-hover/ai:text-primary-300'}`} />
                  {task.aiLoading ? translations.thinking : translations.breakDown}
               </button>
             )}
@@ -133,7 +133,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             {task.subtasks.length > 0 && (
                 <button 
                     onClick={() => onExpand(task.id)}
-                    className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 transition-colors bg-slate-800/50 px-2 py-0.5 rounded-md"
+                    className="flex items-center gap-1 text-xs text-text-500 hover:text-text-300 transition-colors bg-bg-700/50 px-2 py-0.5 rounded-md"
                 >
                     {task.subtasks.filter(st => st.completed).length}/{task.subtasks.length} {translations.subtasks}
                     {task.isExpanded ? <ChevronUpIcon className="w-3 h-3" /> : <ChevronDownIcon className="w-3 h-3" />}
@@ -142,7 +142,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             
             {/* Created At */}
             {!task.dueDate && (
-                <span className="text-xs text-slate-600 font-medium">
+                <span className="text-xs text-text-500 font-medium">
                     {translations.created} {formatCreatedDate(task.createdAt)}
                 </span>
             )}
@@ -152,7 +152,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         {/* Delete Button */}
         <button
           onClick={() => onDelete(task.id)}
-          className="text-slate-600 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 -me-2"
+          className="text-text-500 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 -me-2"
           aria-label="Delete task"
         >
           <TrashIcon className="w-4 h-4" />
@@ -163,20 +163,20 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       {task.isExpanded && task.subtasks.length > 0 && (
         <div className="mt-4 ps-10 space-y-2">
             <div className="relative">
-                <div className="absolute top-0 bottom-0 start-[-1.25rem] w-px bg-dark-700"></div>
+                <div className="absolute top-0 bottom-0 start-[-1.25rem] w-px bg-bg-700"></div>
                 {task.subtasks.map((subtask: SubTask) => (
                     <div key={subtask.id} className="flex items-center gap-3 animate-fade-in py-1">
                     <button
                         onClick={() => onToggleSubtask(task.id, subtask.id)}
                         className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${
                         subtask.completed 
-                            ? 'bg-slate-600 border-slate-600' 
-                            : 'border-slate-600 hover:border-slate-400'
+                            ? 'bg-text-500 border-text-500' 
+                            : 'border-text-500 hover:border-text-300'
                         }`}
                     >
                         {subtask.completed && <CheckIcon className="text-white w-3 h-3" />}
                     </button>
-                    <span className={`text-sm ${subtask.completed ? 'text-slate-600 line-through' : 'text-slate-300'}`}>
+                    <span className={`text-sm ${subtask.completed ? 'text-text-500 line-through' : 'text-text-300'}`}>
                         {subtask.title}
                     </span>
                     </div>
