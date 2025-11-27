@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Task, SubTask, FilterType, Language, Theme } from './types';
 import { TaskItem } from './components/TaskItem';
 import { AddTask } from './components/AddTask';
-import { RocketIcon, ChevronDownIcon, PaletteIcon } from './components/Icons';
+import { RocketIcon, ChevronDownIcon, PaletteIcon, DownloadIcon, MenuIcon, XIcon, UserIcon, MailIcon, LogOutIcon } from './components/Icons';
 import { Toast } from './components/Toast';
 import { Confetti } from './components/Confetti';
 import { ThemeSelector } from './components/ThemeSelector';
@@ -28,6 +28,12 @@ const App: React.FC = () => {
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isCelebrating, setIsCelebrating] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // Auth State (Mock)
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [emailInput, setEmailInput] = useState('');
   
   // Drag and Drop Refs
   const dragItem = useRef<number | null>(null);
@@ -125,11 +131,52 @@ const App: React.FC = () => {
     setTimeout(() => setIsCelebrating(false), 3000);
   };
 
-  // Load from local storage (tasks, language, theme)
+  // PWA Install Prompt Listener
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
+  };
+
+  // Auth Functions
+  const handleSignUp = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (emailInput.trim()) {
+          setUserEmail(emailInput);
+          localStorage.setItem('lets-get-it-buddy-user', emailInput);
+          setEmailInput('');
+          showToast('success'); // Reusing success toast for positive feedback
+      }
+  };
+
+  const handleSignOut = () => {
+      setUserEmail(null);
+      localStorage.removeItem('lets-get-it-buddy-user');
+  };
+
+  // Load from local storage (tasks, language, theme, user)
   useEffect(() => {
     const savedTasks = localStorage.getItem('lets-get-it-buddy-tasks');
     const savedLang = localStorage.getItem('lets-get-it-buddy-lang') as Language;
     const savedTheme = localStorage.getItem('lets-get-it-buddy-theme') as Theme;
+    const savedUser = localStorage.getItem('lets-get-it-buddy-user');
     
     if (savedTasks) {
       try {
@@ -152,6 +199,10 @@ const App: React.FC = () => {
 
     if (savedTheme && ['sunset', 'ocean', 'forest', 'dream'].includes(savedTheme)) {
         setTheme(savedTheme);
+    }
+
+    if (savedUser) {
+        setUserEmail(savedUser);
     }
 
     setIsLoaded(true);
@@ -345,7 +396,117 @@ const App: React.FC = () => {
       {/* Header Background Gradient */}
       <div className="fixed top-0 left-0 right-0 h-64 bg-gradient-to-b from-primary-900/20 to-transparent pointer-events-none z-0"></div>
 
-      {/* Controls: Language and Theme Switcher (Top Right) */}
+      {/* Menu Button - Left */}
+      <div className="fixed top-4 start-4 z-50">
+        <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-bg-800/80 backdrop-blur-md border border-bg-700 shadow-lg text-text-300 hover:text-primary-500 hover:border-primary-500 transition-all"
+        >
+            <MenuIcon className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Sidebar Overlay */}
+      <div 
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => setIsSidebarOpen(false)}
+      ></div>
+
+      {/* Sidebar Drawer */}
+      <div className={`fixed top-0 bottom-0 start-0 w-80 bg-bg-900/95 backdrop-blur-xl border-e border-bg-700 shadow-2xl z-[70] transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : isRTL ? 'translate-x-full' : '-translate-x-full'}`}>
+          <div className="flex flex-col h-full p-6">
+              {/* Sidebar Header */}
+              <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                      <div className="bg-gradient-to-tr from-primary-600 to-secondary-500 p-2 rounded-xl">
+                          <RocketIcon className="w-5 h-5 text-white" />
+                      </div>
+                      <h2 className="text-xl font-bold tracking-tight">Buddy</h2>
+                  </div>
+                  <button onClick={() => setIsSidebarOpen(false)} className="text-text-500 hover:text-white transition-colors">
+                      <XIcon className="w-6 h-6" />
+                  </button>
+              </div>
+
+              {/* User / Auth Section */}
+              <div className="mb-8">
+                  {userEmail ? (
+                      <div className="bg-bg-800 rounded-2xl p-5 border border-bg-700/50">
+                          <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400">
+                                  <UserIcon className="w-5 h-5" />
+                              </div>
+                              <div>
+                                  <p className="text-xs text-text-500">{t.sidebar.welcome}</p>
+                                  <p className="font-semibold text-text-100 truncate w-40">{userEmail}</p>
+                              </div>
+                          </div>
+                          <button 
+                             onClick={handleSignOut}
+                             className="w-full flex items-center justify-center gap-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 py-2 rounded-lg transition-colors"
+                          >
+                              <LogOutIcon className="w-4 h-4" />
+                              {t.sidebar.signOut}
+                          </button>
+                      </div>
+                  ) : (
+                      <div className="bg-bg-800 rounded-2xl p-5 border border-bg-700/50">
+                          <h3 className="font-bold mb-4 flex items-center gap-2">
+                             <span className="w-2 h-6 bg-secondary-500 rounded-full"></span>
+                             {t.sidebar.signUp}
+                          </h3>
+                          <form onSubmit={handleSignUp} className="space-y-4">
+                              <div>
+                                  <label className="block text-xs font-medium text-text-500 mb-1">{t.sidebar.email}</label>
+                                  <div className="relative">
+                                      <MailIcon className="absolute start-3 top-3 w-4 h-4 text-text-500" />
+                                      <input 
+                                        type="email" 
+                                        required
+                                        value={emailInput}
+                                        onChange={(e) => setEmailInput(e.target.value)}
+                                        className="w-full bg-bg-900 border border-bg-700 rounded-lg py-2.5 ps-9 pe-3 text-sm focus:outline-none focus:border-primary-500 transition-colors"
+                                        placeholder="hello@example.com" 
+                                      />
+                                  </div>
+                              </div>
+                              <button 
+                                type="submit"
+                                className="w-full bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-500 hover:to-secondary-400 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-primary-500/20"
+                              >
+                                  {t.sidebar.signUpBtn}
+                              </button>
+                          </form>
+                      </div>
+                  )}
+              </div>
+            
+              <div className="flex-1"></div>
+
+              {/* Install App Section (Only if available) */}
+              {deferredPrompt && (
+                  <div className="mt-auto bg-gradient-to-br from-bg-800 to-bg-700 p-5 rounded-2xl border border-bg-600 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                          <RocketIcon className="w-24 h-24 text-white transform rotate-45 translate-x-4 -translate-y-4" />
+                      </div>
+                      
+                      <div className="relative z-10">
+                          <h4 className="font-bold text-lg mb-1">{t.sidebar.install}</h4>
+                          <p className="text-xs text-text-300 mb-4 leading-relaxed">{t.sidebar.installDesc}</p>
+                          <button 
+                            onClick={handleInstallClick}
+                            className="w-full flex items-center justify-center gap-2 bg-white text-bg-900 font-bold py-2.5 rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
+                          >
+                              <DownloadIcon className="w-4 h-4" />
+                              {t.sidebar.install}
+                          </button>
+                      </div>
+                  </div>
+              )}
+          </div>
+      </div>
+
+      {/* Controls: Theme, Language (Top Right) */}
       <div className="fixed top-4 end-4 z-50 flex items-center gap-2">
           
           {/* Theme Switcher */}

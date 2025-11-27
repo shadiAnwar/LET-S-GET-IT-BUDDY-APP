@@ -56,7 +56,17 @@ export const translations = {
       "Backing out? 🔙",
       "I'm judging you. ⚖️",
       "Another one bites the dust... uncompleted. 💨"
-    ]
+    ],
+    sidebar: {
+      menu: "Menu",
+      signUp: "Sign Up",
+      email: "Email Address",
+      signUpBtn: "Sign Up Now",
+      welcome: "Welcome back,",
+      signOut: "Sign Out",
+      install: "Install App",
+      installDesc: "Download to your phone to use offline!"
+    }
   },
   es: {
     title: "LET'S GET IT BUDDY",
@@ -112,7 +122,17 @@ export const translations = {
       "¿Echándote atrás? 🔙",
       "Te estoy juzgando. ⚖️",
       "Otro que muerde el polvo... incompleto. 💨"
-    ]
+    ],
+    sidebar: {
+      menu: "Menú",
+      signUp: "Registrarse",
+      email: "Correo electrónico",
+      signUpBtn: "Registrarse Ahora",
+      welcome: "Bienvenido,",
+      signOut: "Cerrar Sesión",
+      install: "Instalar App",
+      installDesc: "¡Descarga en tu teléfono para usar sin conexión!"
+    }
   },
   fr: {
     title: "LET'S GET IT BUDDY",
@@ -168,7 +188,17 @@ export const translations = {
       "Tu fais marche arrière ? 🔙",
       "Je te juge. ⚖️",
       "Un autre mord la poussière... inachevé. 💨"
-    ]
+    ],
+    sidebar: {
+      menu: "Menu",
+      signUp: "S'inscrire",
+      email: "Adresse e-mail",
+      signUpBtn: "S'inscrire",
+      welcome: "Bon retour,",
+      signOut: "Se déconnecter",
+      install: "Installer l'app",
+      installDesc: "Téléchargez sur votre téléphone pour l'utiliser hors ligne !"
+    }
   },
   ar: {
     title: "LET'S GET IT BUDDY",
@@ -224,7 +254,17 @@ export const translations = {
       "تتراجع؟ 🔙",
       "أنا أحكم عليك. ⚖️",
       "واحد آخر يسقط... غير مكتمل. 💨"
-    ]
+    ],
+    sidebar: {
+      menu: "القائمة",
+      signUp: "تسجيل الدخول",
+      email: "البريد الإلكتروني",
+      signUpBtn: "سجل الآن",
+      welcome: "مرحباً بعودتك،",
+      signOut: "تسجيل الخروج",
+      install: "تثبيت التطبيق",
+      installDesc: "حمل التطبيق على هاتفك للاستخدام بدون إنترنت!"
+    }
   },
   sv: {
     title: "LET'S GET IT BUDDY",
@@ -280,7 +320,17 @@ export const translations = {
       "Backar du ur? 🔙",
       "Jag dömer dig. ⚖️",
       "En till biter i gräset... ofullständig. 💨"
-    ]
+    ],
+    sidebar: {
+      menu: "Meny",
+      signUp: "Registrera dig",
+      email: "E-postadress",
+      signUpBtn: "Registrera dig nu",
+      welcome: "Välkommen tillbaka,",
+      signOut: "Logga ut",
+      install: "Installera app",
+      installDesc: "Ladda ner till din telefon för att använda offline!"
+    }
   },
   pt: {
     title: "LET'S GET IT BUDDY",
@@ -336,6 +386,16 @@ export const translations = {
       "Dando pra trás? 🔙",
       "Estou te julgando. ⚖️",
       "Mais um que morde a poeira... incompleto. 💨"
-    ]
+    ],
+    sidebar: {
+      menu: "Menu",
+      signUp: "Inscrever-se",
+      email: "Endereço de e-mail",
+      signUpBtn: "Inscrever-se Agora",
+      welcome: "Bem-vindo de volta,",
+      signOut: "Sair",
+      install: "Instalar App",
+      installDesc: "Baixe no seu celular para usar offline!"
+    }
   }
 };
